@@ -11,7 +11,7 @@ import docker
 from fabric import api, context_managers, operations
 
 # generally, fabric-navitia is a brother folder, if not, set environment variable PYTHONPATH
-sys.path.insert(1, os.path.abspath(os.path.join(__file__, '..', '..', 'fabric-navitia')))
+sys.path.insert(1, os.path.abspath(os.path.join(__file__, '..', '..', 'fabric_navitia')))
 from fabfile import tasks, component
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -157,7 +157,11 @@ class DockerImageMixin(object):
                 kwargs['ports'] = self.ports
             if self.volumes:
                 kwargs['volumes'] = self.volumes
-        self.container = docker_client.create_container(**kwargs).get('Id')
+        try:
+            self.container = docker_client.create_container(**kwargs).get('Id')
+        except docker.errors.APIError:
+            docker_client.pull(self.image_name)
+            self.container = docker_client.create_container(**kwargs).get('Id')
         return self
 
     def start(self):
