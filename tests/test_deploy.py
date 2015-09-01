@@ -146,6 +146,9 @@ class TestDeploy(object):
         return BuildDockerSimple(volumes=[HOST_DATA_FOLDER + ':' + GUEST_DATA_FOLDER],
                                  ports=['{}:80'.format(MAPPED_HTTP_PORT)])
 
+    def deploy_simple_no_volume(self):
+        return BuildDockerSimple(ports=['{}:80'.format(MAPPED_HTTP_PORT)])
+
     def deploy_composed(self):
         return BuildDockerCompose(). \
             add_image('ed', ports=[5432]). \
@@ -223,7 +226,7 @@ class TestDeploy(object):
         assert requests.get('http://%s/navitia' % n.images['jormun'].inspect()).status_code == 200
 
     def test_deploy_simple(self, build, fabric, create, commit, restart):
-        n = self.deploy_simple()
+        n = self.deploy_simple_no_volume()
         if restart:
             print('\nRestart container')
             n.stop().start()
