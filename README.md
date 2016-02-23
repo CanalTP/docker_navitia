@@ -62,6 +62,26 @@ Then, the resulting Docker image can be created via:
 
 A similar process is available for the composed platform, simply replace *test_deploy_simple* with *test_deploy_composed*.
 
+Since this build process requires to be run in a Linux environment, if you're on a different platform you can use Docker to build Docker :)
+
+So first build the image:
+`docker build -t navitia-builder .`
+
+Then run it:
+`docker run --name navitia-builder-container -d --privileged navitia-builder`
+
+Then shell into the machine:
+`docker exec -it navitia-builder-container /bin/ash`
+
+Then start the Docker daemon:
+`service docker start`
+
+So now you can build:
+`py.test -s -k test_deploy_simple --build`
+
+When finished, you can remove it:
+`docker rm -f navitia-builder-container`
+
 ## Play with Navitia images
 You can check existing Navitia images on docker hub, type `docker search navitia`.
 
