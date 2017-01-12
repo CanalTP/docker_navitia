@@ -1,3 +1,7 @@
+#This project is deprecated
+You should use https://github.com/CanalTP/navitia-docker-compose
+
+
 # Navitia in Docker containers
 
 ## Aim of the project
