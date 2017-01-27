@@ -17,6 +17,8 @@ from fabfile import utils
 
 HOST_DATA_FOLDER = os.path.join(ROOT, 'data')
 GUEST_DATA_FOLDER = '/srv/ed/data'
+HOST_POSTGRES_FOLDER = os.path.join(ROOT, 'postgres')
+GUEST_POSTGRES_FOLDER = '/var/lib/postgresql'
 HOST_ZMQ_FOLDER = os.path.join(ROOT, 'zmq')
 GUEST_ZMQ_FOLDER = api.env.kraken_basedir
 DATA_FILE = os.path.join(ROOT, 'fixtures/data.zip')
@@ -143,7 +145,8 @@ class TestDeploy(object):
         test_and_launch(out, 'postgres: jormungandr jormungandr')
 
     def deploy_simple(self):
-        return BuildDockerSimple(volumes=[HOST_DATA_FOLDER + ':' + GUEST_DATA_FOLDER],
+        return BuildDockerSimple(volumes=[HOST_DATA_FOLDER + ':' + GUEST_DATA_FOLDER,
+                                          HOST_POSTGRES_FOLDER + ':' + GUEST_POSTGRES_FOLDER],
                                  ports=['{}:80'.format(MAPPED_HTTP_PORT)])
 
     def deploy_simple_no_volume(self):

@@ -3,11 +3,10 @@ FROM debian:8
 # ports
 EXPOSE 22 80 85
 
-# mapped volumes
+# prepare data volumes
 ENV DATA_VOLUME /srv/ed/data
-RUN mkdir -m 777 -p $DATA_VOLUME
-RUN touch $DATA_VOLUME/placeholder
-VOLUME ["$DATA_VOLUME"]
+ENV PG_HOME /var/lib/postgresql
+RUN mkdir -m 777 -p ${DATA_VOLUME}
 
 # systemd is removed and sysvinit is installed instead.
 # As of may 2015, systemd is difficult to launch in a docker container, see http://developerblog.redhat.com/2014/05/05/running-systemd-within-docker-container/
@@ -29,7 +28,7 @@ RUN sed -i "s!DocumentRoot /var/www/html!DocumentRoot /var/www!g" /etc/apache2/s
 # change redis-server conf for not daemonize (for supervisord)
 RUN sed -i '/^daemonize yes/c\daemonize no' /etc/redis/redis.conf
 
-# add user navitia, as a sudoer (for later tests and debug)
+# add user navitia, as a free sudoer (for tests and debug)
 RUN useradd -m -s /bin/bash navitia && echo "navitia:navitia" | chpasswd
 RUN adduser navitia sudo && adduser navitia www-data
 RUN echo "navitia ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
@@ -47,5 +46,8 @@ RUN sed -i "/^# fr_FR.UTF-8 UTF-8/c\fr_FR.UTF-8 UTF-8" /etc/locale.gen
 RUN locale-gen fr_FR.UTF-8
 
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY entrypoint.sh /sbin/entrypoint.sh
+RUN chmod 755 /sbin/entrypoint.sh
 
-CMD ["/usr/bin/supervisord"]
+VOLUME ["$DATA_VOLUME", "$PG_HOME"]
+CMD ["/sbin/entrypoint.sh"]
